@@ -1,56 +1,50 @@
 MediBot - Sistema de Citas Automatizado con IA y Panel Web
-📝 Descripción del Proyecto
-MediBot es un ecosistema de automatización que utiliza n8n como orquestador para conectar WhatsApp Business, OpenAI y Google Calendar. El sistema permite a los negocios gestionar sus agendas de forma inteligente, mientras ofrece a los clientes una interfaz conversacional para reservar citas en cualquier momento.
+Descripción del Proyecto
+MediBot es un ecosistema de automatización que utiliza n8n como orquestador para conectar WhatsApp Business, OpenAI y Google Calendar. El sistema se complementa con una plataforma web de gestión desarrollada en PHP/Laravel donde la clínica supervisa las citas agendadas y gestiona su base de datos de pacientes.
 
-Se complementa con una plataforma web de gestión desarrollada en PHP donde la clínica supervisa las citas agendadas y gestiona su base de datos de pacientes.
+El proyecto demuestra competencia en tecnologías de vanguardia como la IA conversacional y la orquestación de flujos complejos, siendo una solución adaptable a cualquier negocio basado en citas, como clínicas dentales, centros de estética o consultorios médicos.
 
-🛠️ Problema que Resuelve
+Problema que Resuelve
 
-Eficiencia operativa: Elimina los cuellos de botella críticos de la gestión manual de citas.
-
-
-Disponibilidad 24/7: Permite a los clientes reservar fuera del horario comercial.
+Automatización de flujos: Elimina errores en agendamientos complejos centralizando la lógica en n8n.
 
 
-Reducción de errores: Automatiza flujos complejos de agendamiento sin errores humanos.
-
-✨ Funcionalidades Mínimas (MVP)
-
-Integración con WhatsApp: Recepción y envío de mensajes automatizados mediante la API de WhatsApp Business.
+Eficiencia administrativa: Reduce las tareas repetitivas del personal, eliminando cuellos de botella críticos.
 
 
-IA Conversacional: Lógica de Inteligencia Artificial para interpretar lenguaje natural y extraer datos de citas.
+Disponibilidad 24/7: Permite a los clientes reservar citas de forma rápida y cómoda fuera del horario comercial.
 
 
-Sincronización de Calendario: Gestión de eventos en tiempo real con Google Calendar API.
+Control Humano: Ofrece una interfaz web profesional para que la clínica mantenga el control total de su agenda.
+
+Funcionalidades Principales (MVP)
+
+Asistente de IA por WhatsApp: Implementación de lógica de IA para interpretar el lenguaje natural y extraer datos específicos para las citas.
 
 
-Panel de Administración Web: Dashboard para visualizar y gestionar la agenda y base de datos de pacientes.
+Gestión de Agenda en Tiempo Real: Sincronización automática con la API de Google Calendar para crear y gestionar eventos.
 
 
-Orquestación de Flujos: Diseño de workflows en n8n para la comunicación entre servicios.
+Panel de Administración Web: Interfaz (Frontend) para que la clínica visualice y gestione su agenda de manera centralizada.
 
-🚀 Funcionalidades Extra (Fases Posteriores)
-Recordatorios Automáticos: Envío de notificaciones previas a la cita para evitar inasistencias.
 
-Sistema Multiclínica: Capacidad de gestionar múltiples sucursales o profesionales desde un único panel.
+Base de Datos de Pacientes: Registro seguro de información de pacientes, clínicas y registros de interacción.
 
-Cancelación y Reprogramación: Flujo automatizado para que el usuario modifique su cita por WhatsApp.
 
-Analíticas de Negocio: Reportes sobre los servicios más demandados y horas pico de atención.
+Flujos de Trabajo Automatizados: Despliegue de workflows en n8n para orquestar la comunicación entre mensajes, IA y calendario.
 
-💻 Stack Tecnológico
+Stack Tecnológico
 
 Orquestador: n8n.
 
 
-Backend: PHP .
+Backend: PHP (Laravel) para la gestión de APIs y persistencia de datos.
 
 
-Frontend: HTML5, CSS3 y JavaScript (React o Vanila).
+Frontend: HTML5, CSS3 y JavaScript (React o Vue.js) para el Dashboard.
 
 
 Base de Datos: MySQL.
 
 
-APIs: WhatsApp Business API, OpenAI API y Google Calendar API.
+APIs Integradas: WhatsApp Business API, OpenAI API y Google Calendar API.
