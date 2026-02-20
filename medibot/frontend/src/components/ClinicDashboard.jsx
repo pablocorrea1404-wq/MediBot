@@ -8,7 +8,8 @@ import {
     CalendarCheck,
     ChevronRight,
     AlertCircle,
-    DollarSign
+    DollarSign,
+    Download
 } from 'lucide-react';
 
 export default function ClinicDashboard({ onNavigate, patients, appointments, onOpenPatientModal, onOpenAppointmentModal }) {
@@ -83,6 +84,15 @@ export default function ClinicDashboard({ onNavigate, patients, appointments, on
                     icon={<DollarSign className="w-6 h-6" />}
                     color="blue"
                     trend="Basado en servicios"
+                    action={
+                        <a
+                            href="http://127.0.0.1:8000/api/earnings/export"
+                            className="p-2 hover:bg-blue-100 rounded-lg text-blue-600 transition-colors"
+                            title="Exportar Excel"
+                        >
+                            <Download className="w-5 h-5" />
+                        </a>
+                    }
                 />
                 <StatCard
                     title="Pacientes"
@@ -170,6 +180,13 @@ export default function ClinicDashboard({ onNavigate, patients, appointments, on
                                 color="green"
                                 onClick={onOpenAppointmentModal}
                             />
+                            <a
+                                href="http://127.0.0.1:8000/api/earnings/export"
+                                className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all space-y-2 w-full text-center"
+                            >
+                                <div className="text-blue-600"><Download className="w-5 h-5" /></div>
+                                <span className="text-xs font-bold text-gray-700">Exportar Caja</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -178,7 +195,7 @@ export default function ClinicDashboard({ onNavigate, patients, appointments, on
     );
 }
 
-function StatCard({ title, value, icon, color, trend }) {
+function StatCard({ title, value, icon, color, trend, action }) {
     const colors = {
         blue: "bg-blue-50 text-blue-600",
         green: "bg-green-50 text-green-600",
@@ -195,6 +212,7 @@ function StatCard({ title, value, icon, color, trend }) {
                 <span className="text-xs font-bold text-green-500 bg-green-50 px-2 py-1 rounded-lg">
                     {trend}
                 </span>
+                {action}
             </div>
             <h3 className="text-gray-500 font-medium text-sm">{title}</h3>
             <p className="text-2xl font-extrabold text-gray-900 mt-1">{value}</p>

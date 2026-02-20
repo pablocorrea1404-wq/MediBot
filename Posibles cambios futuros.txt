@@ -4,5 +4,10 @@
 - Que esto se puedan registrar varias clínicas y que tenga un login para cada clinica con su correo y contraseña
 -Montarlo en servidor real que me compre 
 -Tengo que poner que cuando se crea una cita pueda elegir dia y hora 
-
+-Automatización que recuerde 24 horas antes 
+-Sacar en un Excel las ganacias de un dia
+-Buscador por nombre y apellidos a la hora de hacer una nueva cita
+-En el historial ver imágenes y tal 
+-En el equipo que puedas pinchar en la cita y que puedas ver toda la información	
+-Hacer también que la cita se ponga también en Google calendar
 admin@medibot.com / admin123

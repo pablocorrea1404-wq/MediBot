@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, User, Clock, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react';
+import { Calendar, User, Clock, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, UserPlus, Info, X } from 'lucide-react';
 import NewStaffModal from './NewStaffModal';
 
 export default function TeamSchedule() {
@@ -11,6 +11,7 @@ export default function TeamSchedule() {
     const [selectedStaff, setSelectedStaff] = useState('all');
     const [isNewStaffOpen, setIsNewStaffOpen] = useState(false);
     const [notification, setNotification] = useState(null);
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
 
     // Helper para formatear fecha como string (DD/MM/YYYY) para comparar
     const formatDate = (date) => {
@@ -200,6 +201,52 @@ export default function TeamSchedule() {
                 </div>
             )}
 
+            {/* Modal de Detalles de Cita */}
+            {selectedAppointment && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+                        <div className="bg-indigo-600 px-6 py-4 flex justify-between items-center text-white">
+                            <h3 className="font-bold flex items-center"><Info className="w-5 h-5 mr-2" /> Detalles de la Cita</h3>
+                            <button onClick={() => setSelectedAppointment(null)} className="p-1 hover:bg-white/20 rounded-full transition-colors"><X className="w-5 h-5" /></button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-2xl">
+                                <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-xl">
+                                    {selectedAppointment.patient[0]}
+                                </div>
+                                <div>
+                                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Paciente</p>
+                                    <h4 className="font-bold text-gray-900 text-lg">{selectedAppointment.patient}</h4>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 border border-gray-100 rounded-2xl">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Hora</p>
+                                    <p className="font-bold text-gray-800 flex items-center"><Clock className="w-3 h-3 mr-2 text-indigo-500" /> {selectedAppointment.time}</p>
+                                </div>
+                                <div className="p-4 border border-gray-100 rounded-2xl">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Estado</p>
+                                    <span className="text-xs font-bold px-2 py-1 bg-indigo-50 text-indigo-600 rounded-lg">{selectedAppointment.status}</span>
+                                </div>
+                            </div>
+
+                            <div className="p-4 border border-gray-100 rounded-2xl">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Procedimiento / Notas</p>
+                                <p className="text-sm text-gray-600 font-medium leading-relaxed bg-slate-50 p-3 rounded-xl">{selectedAppointment.procedure}</p>
+                            </div>
+
+                            <button
+                                onClick={() => setSelectedAppointment(null)}
+                                className="w-full py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-black transition-colors"
+                            >
+                                Entendido
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <NewStaffModal
                 isOpen={isNewStaffOpen}
                 onClose={() => setIsNewStaffOpen(false)}
@@ -297,7 +344,11 @@ export default function TeamSchedule() {
                         {filteredTasks.map((task) => {
                             const staffMember = staff.find(s => s.id === task.staffId);
                             return (
-                                <div key={task.id} className="p-6 flex items-center justify-between hover:bg-indigo-50/30 transition-colors group">
+                                <div
+                                    key={task.id}
+                                    onClick={() => setSelectedAppointment(task)}
+                                    className="p-6 flex items-center justify-between hover:bg-indigo-50/30 transition-colors group cursor-pointer"
+                                >
                                     <div className="flex items-center space-x-6">
                                         <div className="flex flex-col items-center justify-center min-w-[70px] py-2 px-3 bg-gray-50 rounded-lg border border-gray-100 group-hover:bg-white transition-colors">
                                             <span className="text-sm font-bold text-indigo-600">{task.time}</span>

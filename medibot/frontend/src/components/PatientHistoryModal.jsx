@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Calendar, FileText, CheckCircle, Clock } from 'lucide-react';
+import { X, Calendar, FileText, CheckCircle, Clock, Image as ImageIcon } from 'lucide-react';
 
 export default function PatientHistoryModal({ isOpen, onClose, patient }) {
     if (!isOpen || !patient) return null;
@@ -7,6 +7,7 @@ export default function PatientHistoryModal({ isOpen, onClose, patient }) {
     const [history, setHistory] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
     const [newRecord, setNewRecord] = React.useState('');
+    const [imageUrl, setImageUrl] = React.useState('');
     const [isSaving, setIsSaving] = React.useState(false);
 
     const fetchAllData = async () => {
@@ -38,6 +39,7 @@ export default function PatientHistoryModal({ isOpen, onClose, patient }) {
                 type: 'Nota Médica',
                 doctor: 'Dr. Admin',
                 content: rec.content,
+                imageUrl: rec.imageUrl,
                 status: 'finalized',
                 isNote: true
             }));
@@ -66,11 +68,13 @@ export default function PatientHistoryModal({ isOpen, onClose, patient }) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     patient: `/api/patients/${patient.patientId}`,
-                    content: newRecord
+                    content: newRecord,
+                    imageUrl: imageUrl
                 })
             });
             if (response.ok) {
                 setNewRecord('');
+                setImageUrl('');
                 fetchAllData();
             }
         } catch (err) {
@@ -114,6 +118,16 @@ export default function PatientHistoryModal({ isOpen, onClose, patient }) {
                                 placeholder="Describa el tratamiento realizado o diagnóstico..."
                                 className="w-full p-3 text-sm border border-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none h-20 resize-none bg-gray-50"
                             />
+                            <div className="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-dashed border-gray-200">
+                                <ImageIcon className="w-4 h-4 text-gray-400" />
+                                <input
+                                    type="text"
+                                    value={imageUrl}
+                                    onChange={(e) => setImageUrl(e.target.value)}
+                                    placeholder="URL de imagen (adjuntar prueba, RX...)"
+                                    className="flex-1 bg-transparent text-xs outline-none"
+                                />
+                            </div>
                             <div className="flex justify-end">
                                 <button
                                     disabled={isSaving || !newRecord.trim()}
@@ -150,6 +164,16 @@ export default function PatientHistoryModal({ isOpen, onClose, patient }) {
                                         <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
                                             {record.content}
                                         </p>
+                                        {record.imageUrl && (
+                                            <div className="mt-4 rounded-lg overflow-hidden border border-gray-100">
+                                                <img
+                                                    src={record.imageUrl}
+                                                    alt="Adjunto médico"
+                                                    className="w-full h-auto max-h-64 object-cover hover:scale-105 transition-transform cursor-pointer"
+                                                    onClick={() => window.open(record.imageUrl, '_blank')}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}

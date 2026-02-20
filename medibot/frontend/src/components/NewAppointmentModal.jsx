@@ -4,6 +4,7 @@ import { X, Calendar, User, FileText, Stethoscope, Clock } from 'lucide-react';
 export default function NewAppointmentModal({ isOpen, onClose, onSave, patients = [], onAddPatient, initialData }) {
     const [mode, setMode] = useState('existing'); // 'existing' or 'new'
     const [selectedPatientId, setSelectedPatientId] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     const [services, setServices] = useState([]);
     const [newPatientData, setNewPatientData] = useState({ name: '', dni: '', email: '', phone: '' });
 
@@ -55,6 +56,11 @@ export default function NewAppointmentModal({ isOpen, onClose, onSave, patients 
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
+
+    const filteredPatients = patients.filter(p =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.dni.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -112,12 +118,44 @@ export default function NewAppointmentModal({ isOpen, onClose, onSave, patients 
                         )}
 
                         {mode === 'existing' ? (
-                            <div className="relative">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                                <select required value={selectedPatientId} onChange={(e) => setSelectedPatientId(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 appearance-none">
-                                    <option value="">Buscar paciente...</option>
-                                    {patients.map(p => <option key={p.id || p['@id']} value={p.id || p['@id']?.split('/').pop()}>{p.name} ({p.dni})</option>)}
-                                </select>
+                            <div className="space-y-4">
+                                <div className="relative">
+                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar por nombre o DNI..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
+                                    />
+                                </div>
+
+                                {searchTerm && (
+                                    <div className="max-h-48 overflow-y-auto bg-white border border-slate-100 rounded-2xl shadow-inner p-2 space-y-1">
+                                        {filteredPatients.length > 0 ? filteredPatients.map(p => (
+                                            <button
+                                                key={p.id || p['@id']}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedPatientId(p.id || p['@id']?.split('/').pop());
+                                                    setSearchTerm(p.name);
+                                                }}
+                                                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-colors ${selectedPatientId === (p.id || p['@id']?.split('/').pop()) ? 'bg-blue-600 text-white' : 'hover:bg-slate-50 text-slate-700'}`}
+                                            >
+                                                {p.name} <span className="opacity-50 ml-2 font-mono text-xs">{p.dni}</span>
+                                            </button>
+                                        )) : (
+                                            <p className="p-4 text-center text-xs text-slate-400 font-bold uppercase italic">Sin resultados</p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {selectedPatientId && !searchTerm.includes(patients.find(p => (p.id || p['@id']?.split('/').pop()) === selectedPatientId)?.name) && (
+                                    <div className="p-3 bg-blue-50 rounded-xl flex items-center justify-between">
+                                        <span className="text-xs font-bold text-blue-700">Seleccionado: {patients.find(p => (p.id || p['@id']?.split('/').pop()) === selectedPatientId)?.name}</span>
+                                        <button type="button" onClick={() => { setSelectedPatientId(''); setSearchTerm(''); }} className="text-blue-400 hover:text-blue-600"><X className="w-4 h-4" /></button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="space-y-3">

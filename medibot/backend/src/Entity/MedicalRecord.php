@@ -40,9 +40,11 @@ class MedicalRecord
     #[Groups(['record:read', 'record:write'])]
     private ?string $content = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['record:read'])]
     private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(length: 1024, nullable: true)]
+    #[Groups(['record:read', 'record:write'])]
+    private ?string $imageUrl = null;
 
     public function __construct()
     {
@@ -95,6 +97,17 @@ class MedicalRecord
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
+    public function setImageUrl(?string $imageUrl): static
+    {
+        $this->imageUrl = $imageUrl;
         return $this;
     }
 }
