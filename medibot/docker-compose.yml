@@ -1,0 +1,89 @@
+services:
+  db:
+    image: mariadb:10.6
+    container_name: medibot-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: medibot
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/database_schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    # Puerto 3306 solo interno (no accesible desde navegador)
+    networks:
+      - medibot-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: medibot-pma
+    environment:
+      PMA_HOST: db
+      PMA_USER: user
+      PMA_PASSWORD: password
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - medibot-network
+
+  backend:
+    build: ./backend
+    container_name: medibot-backend
+    volumes:
+      - ./backend:/var/www/html
+      - /var/www/html/var
+      - /var/www/html/vendor
+    ports:
+      - "8000:80"
+    environment:
+      DATABASE_URL: "mysql://user:password@db:3306/medibot?serverVersion=10.6.12-MariaDB&charset=utf8mb4"
+      DEFAULT_URI: "http://localhost:8000"
+      APP_ENV: "dev"
+      APP_DEBUG: "0" # Desactivar debug extremo para mejorar respuesta
+    depends_on:
+      - db
+    networks:
+      - medibot-network
+
+  frontend:
+    build: ./frontend
+    container_name: medibot-frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - medibot-network
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: medibot-n8n
+    ports:
+      - "5679:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      # Optional: Timezone
+      - GENERIC_TIMEZONE=Europe/Madrid
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - medibot-network
+
+volumes:
+  db_data:
+  n8n_data:
+
+
+networks:
+  medibot-network:
+    driver: bridge

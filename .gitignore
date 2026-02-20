@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Symfony / PHP
+.env.local
+.env.local.php
+.env.tests.local
+.env.dist
+/var/
+/vendor/
+/public/bundles/
+/public/uploads/
+/config/secrets/*.php
+/config/jwt/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Build
+/dist/
+/build/
+
+# Docker
+.docker/
+
+# WhatsApp Bot
+medibot/whatsapp-bot/sessions/
+medibot/whatsapp-bot/.wwebjs_cache/
+medibot/whatsapp-bot/.env
+
+# Specific files
+medibot.zip
+*.log

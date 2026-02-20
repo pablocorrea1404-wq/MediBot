@@ -1,0 +1,8 @@
+- Pasar de telegram a watsap 
+- Usar los estados en las citas. Por ejemplo que el chatbot 24 horas antes le mande un mensaje al cliente que le pida que le confirme la asistencia si dice que la confirma el estado pasa a    estar en confirmada, si no confirma se pone cancelada y si pide una cita alguien por ejemplo pues se pone automáticamente como pendiente, y cuando le mande el mensaje de confirmación que se   ponga en confirmada.
+- En vez de n8n que use el modelo de openai que use uno de ollama que lo cree yo 
+- Que esto se puedan registrar varias clínicas y que tenga un login para cada clinica con su correo y contraseña
+-Montarlo en servidor real que me compre 
+-Tengo que poner que cuando se crea una cita pueda elegir dia y hora 
+
+admin@medibot.com / admin123

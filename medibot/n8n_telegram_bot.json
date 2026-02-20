@@ -1,0 +1,221 @@
+{
+    "name": "MediBot - Telegram AI Agent",
+    "nodes": [
+        {
+            "parameters": {
+                "updates": [
+                    "message"
+                ]
+            },
+            "id": "telegram-trigger",
+            "name": "Bot de Telegram",
+            "type": "n8n-nodes-base.telegramTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                140,
+                300
+            ],
+            "webhookId": "medibot-telegram",
+            "credentials": {
+                "telegramApi": {
+                    "id": "1",
+                    "name": "Telegram Bot API"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "agent": "conversationalAgent",
+                "promptType": "define",
+                "text": "={{ $json.message.text }}",
+                "options": {
+                    "systemMessage": "Eres MediBot, asistente virtual de la clínica dental. Tu objetivo es ayudar a los pacientes a agendar citas con el doctor adecuado.\n\nPROFESIONALES Y ESPECIALIDADES:\n1. Dra. Sarah Smith (ID: 1): Experta en Ortodoncia. Atiende brackets despegados, seguimiento de ortodoncia, Invisalign.\n2. Dr. Mike Doe (ID: 2): Odontólogo General. Atiende caries, dolor de muelas, extracciones, empastes.\n3. Lisa Ray (ID: 3): Higienista dental. Atiende limpiezas dentales, sarro, blanqueamientos.\n\nFLUJO DE TRABAJO:\n1. Identifica el problema del paciente. \n2. Selecciona al profesional adecuado según las especialidades arriba indicadas.\n3. Usa 'consultar_disponibilidad' pasando la fecha (YYYY-MM-DD) y el staff_id del doctor seleccionado.\n4. Si el paciente no está registrado, pide Nombre, Email y Teléfono y usa 'crear_paciente'.\n5. Usa 'crear_cita' pasando paciente_id, fecha_hora (ISO 8601), servicio (descripción breve) y el staff_id del doctor.\n6. Una vez la cita esté guardada en el sistema web, usa 'google_calendar' para agendarla también en el calendario de Google.\n7. Confirma todos los detalles al final.\n\nSé amable, empático y profesional."
+                }
+            },
+            "id": "ai-agent",
+            "name": "Agente de IA",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 1.6,
+            "position": [
+                360,
+                300
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "2",
+                    "name": "OpenAI"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $('Bot de Telegram').item.json.message.chat.id }}",
+                "text": "={{ $json.output }}"
+            },
+            "id": "telegram-send",
+            "name": "Enviar Respuesta",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1.1,
+            "position": [
+                580,
+                300
+            ],
+            "credentials": {
+                "telegramApi": {
+                    "id": "1",
+                    "name": "Telegram Bot API"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "name": "consultar_disponibilidad",
+                "description": "Consulta horarios disponibles. Parámetros: fecha (YYYY-MM-DD, opcional), staff_id (número, opcional). Devuelve lista de horarios libres para ese doctor.",
+                "language": "javaScript",
+                "jsCode": "const fecha = $input.item.json.fecha || new Date().toISOString().split('T')[0];\nconst staffId = $input.item.json.staff_id || '';\n\nconst url = `http://backend/api/availability?date=${fecha}${staffId ? '&staffId=' + staffId : ''}`;\nconst response = await fetch(url);\nconst data = await response.json();\n\nreturn { json: data };"
+            },
+            "id": "tool-disponibilidad",
+            "name": "Tool: Consultar disponibilidad",
+            "type": "@n8n/n8n-nodes-langchain.toolCode",
+            "typeVersion": 1,
+            "position": [
+                140,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "name": "crear_paciente",
+                "description": "Crea un paciente. Parámetros: nombre, email, telefono. Devuelve ID del paciente.",
+                "language": "javaScript",
+                "jsCode": "const { nombre, email, telefono } = $input.item.json;\n\nconst response = await fetch('http://backend/api/patients', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({\n    name: nombre,\n    email: email,\n    phone: telefono,\n    dni: ''\n  })\n});\n\nconst data = await response.json();\nreturn { json: { paciente_id: data.id, mensaje: `Paciente ${nombre} creado con ID ${data.id}` } };"
+            },
+            "id": "tool-crear-paciente",
+            "name": "Tool: Crear Paciente",
+            "type": "@n8n/n8n-nodes-langchain.toolCode",
+            "typeVersion": 1,
+            "position": [
+                280,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "name": "crear_cita",
+                "description": "Crea una cita. Parámetros: paciente_id (número), fecha_hora (ISO 8601), servicio, staff_id (número). Devuelve confirmación.",
+                "language": "javaScript",
+                "jsCode": "const { paciente_id, fecha_hora, servicio, staff_id } = $input.item.json;\n\nconst response = await fetch('http://backend/api/appointments', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({\n    patient: `/api/patients/${paciente_id}`,\n    staff: `/api/staff/${staff_id}`,\n    appointmentDate: fecha_hora,\n    status: 'pending', \n    notes: servicio || ''\n  })\n});\n\nconst data = await response.json();\nreturn { json: { mensaje: `Cita creada con éxito para el ${fecha_hora} con el profesional solicitado.` } };"
+            },
+            "id": "tool-crear-cita",
+            "name": "Tool: Crear Cita",
+            "type": "@n8n/n8n-nodes-langchain.toolCode",
+            "typeVersion": 1,
+            "position": [
+                420,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "resource": "event",
+                "calendarId": "primary",
+                "start": "={{ $json.fecha_hora }}",
+                "end": "={{ new Date(new Date($json.fecha_hora).getTime() + 30 * 60000).toISOString() }}",
+                "summary": "={{ $json.servicio }}",
+                "description": "Cita dental agendada vía MediBot",
+                "additionalFields": {}
+            },
+            "id": "google-calendar-node",
+            "name": "Tool: Google Calendar",
+            "type": "n8n-nodes-base.googleCalendar",
+            "typeVersion": 1.2,
+            "position": [
+                560,
+                100
+            ],
+            "credentials": {
+                "googleCalendarOAuth2Api": {
+                    "id": "3",
+                    "name": "Google Calendar account"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Bot de Telegram": {
+            "main": [
+                [
+                    {
+                        "node": "Agente de IA",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Agente de IA": {
+            "main": [
+                [
+                    {
+                        "node": "Enviar Respuesta",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Tool: Consultar disponibilidad": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Agente de IA",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Tool: Crear Paciente": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Agente de IA",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Tool: Crear Cita": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Agente de IA",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Tool: Google Calendar": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Agente de IA",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [],
+    "triggerCount": 1,
+    "updatedAt": "2026-02-05T03:04:00.000Z",
+    "versionId": "5"
+}
